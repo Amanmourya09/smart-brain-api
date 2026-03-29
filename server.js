@@ -9,10 +9,15 @@ const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
+// 🔥 FIXED DB CONNECTION (IMPORTANT CHANGE)
 const db = knex({
   client: 'pg',
-  connection: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connection: {
+    connectionString: process.env.DATABASE_URL, // 👈 CHANGE: string → object
+    ssl: {
+      rejectUnauthorized: false                // 👈 CHANGE: SSL properly enable kiya
+    }
+  }
 });
 
 const app = express();
@@ -21,14 +26,14 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('API is working');  // ✅ better response
+  res.send('API is working');
 });
 
 app.post('/signin', signin.handleSignin(db, bcrypt));
 
-// 🔥 DEBUG ADDED HERE (IMPORTANT)
+// 🔥 DEBUG (already correct)
 app.post('/register', (req, res) => {
-  console.log("REGISTER HIT 👉", req.body); // 👈 ye line add ki hai (request check karne ke liye)
+  console.log("REGISTER HIT 👉", req.body); // 👈 request aa rahi hai ya nahi check
   register.handleRegister(req, res, db, bcrypt);
 });
 
